@@ -6,7 +6,7 @@ import cors from 'cors';
 import { toNodeHandler } from 'better-auth/node';
 import { auth } from './lib/auth';
 import productRoutes from './routes/product.routes';
-
+import orderRoutes from './routes/order.routes'; 
 const app = express();
 
 app.set('trust proxy', true);
@@ -25,9 +25,8 @@ app.use(
 app.all('/api/auth/*splat', toNodeHandler(auth));
 
 app.use(express.json());
-
 app.use('/api/products', productRoutes);
-
+app.use('/api/orders', orderRoutes); 
 app.get('/', (req: Request, res: Response) => {
   res.send('REEZ server is running with TypeScript!');
 });
