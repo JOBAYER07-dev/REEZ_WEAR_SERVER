@@ -13,7 +13,11 @@ app.set('trust proxy', 1);
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: [
+      'https://reez-wear.vercel.app',
+      'https://reez-wear-git-main-jobayerhosen045-7207s-projects.vercel.app',
+      'http://localhost:3000',
+    ],
     credentials: true,
   }),
 );
