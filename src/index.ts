@@ -8,8 +8,7 @@ import { auth } from './lib/auth';
 import productRoutes from './routes/product.routes';
 
 const app = express();
-
-app.set('trust proxy', 1);
+app.set('trust proxy', true);
 
 app.use(
   cors({
