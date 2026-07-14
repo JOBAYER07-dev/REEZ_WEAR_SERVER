@@ -23,5 +23,15 @@ export const auth = betterAuth({
     },
   },
   plugins: [admin()],
-  trustedOrigins: [process.env.CLIENT_URL as string],
+  trustedOrigins: [
+    'https://reez-wear.vercel.app',
+    'https://reez-wear-git-main-jobayerhosen045-7207s-projects.vercel.app',
+    'http://localhost:3000',
+  ],
+  cookie: {
+    options: {
+      sameSite: 'none',
+      secure: true,
+    },
+  },
 });
