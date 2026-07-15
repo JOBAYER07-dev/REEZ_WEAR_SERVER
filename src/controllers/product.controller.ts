@@ -114,7 +114,7 @@ export const createProduct = async (req: Request, res: Response) => {
   }
 };
 
-// PUT /api/products/:id - Admin only (🎯 এডিট/আপডেট লজিকটি আবার যুক্ত করা হলো)
+// PUT /api/products/:id - Admin only 
 export const updateProduct = async (req: Request, res: Response) => {
   try {
     const id = String(req.params.id);
@@ -183,5 +183,37 @@ export const deleteProduct = async (req: Request, res: Response) => {
     res.json({ message: 'Product deleted' });
   } catch {
     res.status(500).json({ error: 'Failed to delete product' });
+  }
+};
+
+export const saveContactMessage = async (req: Request, res: Response) => {
+  try {
+    const { name, email, message } = req.body;
+    if (!name || !email || !message) {
+      res.status(400).json({ error: 'Shob field pooron koro' });
+      return;
+    }
+    await db.collection('messages').insertOne({ name, email, message, createdAt: new Date() });
+    res.status(201).json({ message: 'Message sent successfully' });
+  } catch {
+    res.status(500).json({ error: 'Failed to send message' });
+  }
+};
+export const subscribeNewsletter = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      res.status(400).json({ error: 'Email dite hobe' });
+      return;
+    }
+    const existing = await db.collection('subscribers').findOne({ email });
+    if (existing) {
+      res.status(400).json({ error: 'Email already subscribed!' });
+      return;
+    }
+    await db.collection('subscribers').insertOne({ email, createdAt: new Date() });
+    res.status(201).json({ message: 'Subscribed successfully' });
+  } catch {
+    res.status(500).json({ error: 'Subscription failed' });
   }
 };
