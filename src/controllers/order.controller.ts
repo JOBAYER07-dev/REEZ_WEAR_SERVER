@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import { ObjectId } from 'mongodb'; // 🎯 ObjectId ইম্পোর্ট নিশ্চিত করা হলো
+import { ObjectId } from 'mongodb'; 
 import { db } from '../lib/auth';
 import { auth } from '../lib/auth';
 import { fromNodeHeaders } from 'better-auth/node';
 
-// ১. POST /api/orders - কাস্টমারের জন্য অর্ডার প্লেস করা
+// ১. POST /api/orders - order place for customer
 export const createOrder = async (req: Request, res: Response) => {
   try {
     const {
@@ -53,7 +53,7 @@ export const createOrder = async (req: Request, res: Response) => {
   }
 };
 
-// ২. GET /api/orders - শুধুমাত্র অ্যাডমিন সব অর্ডার দেখতে পারবে
+// 2. GET /api/orders - only admin can fetch all orders
 export const getOrders = async (req: Request, res: Response) => {
   try {
     const collection = db.collection('orders');
@@ -71,7 +71,7 @@ export const getOrders = async (req: Request, res: Response) => {
   }
 };
 
-// ৩. PUT /api/orders/:id/status - শুধুমাত্র অ্যাডমিন অর্ডার আপডেট করতে পারবে
+// 3. PUT /api/orders/:id/status - only admin can update order status
 export const updateOrderStatus = async (req: Request, res: Response) => {
   try {
     const id = String(req.params.id);
@@ -100,5 +100,33 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Failed to update order status:', error);
     res.status(500).json({ error: 'Failed to update order status' });
+  }
+};
+
+
+// 4. GET /api/orders/my-orders - fetch orders for the logged-in user
+export const getMyOrders = async (req: Request, res: Response) => {
+  try {
+    const session = await auth.api.getSession({
+      headers: fromNodeHeaders(req.headers),
+    });
+
+    if (!session || !session.user) {
+      res.status(401).json({ error: 'Log in korte hobe' });
+      return;
+    }
+
+    const collection = db.collection('orders');
+    const rawOrders = await collection.find({ userId: session.user.id }).sort({ createdAt: -1 }).toArray();
+    
+    const orders = rawOrders.map(({ _id, ...rest }) => ({
+      id: _id.toString(),
+      ...rest,
+    }));
+
+    res.json({ orders });
+  } catch (error) {
+    console.error('Failed to fetch user orders:', error);
+    res.status(500).json({ error: 'Failed to fetch orders' });
   }
 };
